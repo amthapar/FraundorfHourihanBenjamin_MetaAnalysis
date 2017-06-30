@@ -20,6 +20,8 @@ meta.FullData$AgeDiff_Criterion <- meta.FullData$YA_Criterion - meta.FullData$OA
 
 meta.FullData$OA_Age.c <- meta.FullData$OA_Age - mean(meta.FullData$OA_Age)
 
+meta.FullData$Total_N <- meta.FullData$YA_N + meta.FullData$OA_N
+
 contrasts(meta.FullData$Faces) <- contr.helmert.weighted(meta.FullData$Faces)
 contrasts(meta.FullData$Pictures) <- contr.helmert.weighted(meta.FullData$Pictures)
 contrasts(meta.FullData$Text) <- contr.helmert.weighted(meta.FullData$Text)
@@ -75,17 +77,33 @@ meta.FullData$ContinuousRI <- meta.FullData$ContinuousRecog.Num * meta.FullData$
 
 ## DISCRIMINATION MODEL
 
-model.Dprime <- lmer(AgeDiff_Discrimination ~ 1 + YA_Discrimination.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.FullData)
-summaryCI(model.Dprime)
-drop1(model.Dprime, test='Chisq') # likelihood-ratio test
+model.Dprime.weighted <- lmer(AgeDiff_Discrimination ~ 1 + YA_Discrimination.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.FullData, weights=1/Total_N)
+summaryCI(model.Dprime.weighted)
+drop1(model.Dprime.weighted, test='Chisq') # likelihood-ratio test
+
+# Peters' test for publication bias
+meta.FullData$Total_N_Inverse <- 1/meta.FullData$Total_N
+model.Dprime.weighted.bias <- lmer(AgeDiff_Discrimination ~ 1 + Total_N_Inverse + YA_Discrimination.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.FullData, weights=1/Total_N)
+summaryCI(model.Dprime.weighted.bias)
+drop1(model.Dprime.weighted.bias, test='Chisq') # likelihood-ratio test
 
 
 ## CRITERION MODEL
 
-model.C <- lmer(AgeDiff_Criterion ~ 1 + YA_Criterion.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num.c + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.FullData)
-summaryCI(model.C)
-drop1(model.C, test='Chisq') # likelihood-ratio test
+model.C.weighted <- lmer(AgeDiff_Criterion ~ 1 + YA_Criterion.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num.c + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.FullData, weights=1/Total_N)
+summaryCI(model.C.weighted)
+drop1(model.C.weighted, test='Chisq') # likelihood-ratio test
 
+# Test for criteron differences even controlling for d'
+model.C.weighted.d <- lmer(AgeDiff_Criterion ~ 1 + AgeDiff_Discrimination + YA_Criterion.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num.c + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.FullData, weights=1/Total_N)
+summaryCI(model.C.weighted.d)
+drop1(model.C.weighted.d, test='Chisq') # likelihood-ratio test
+
+# Peters' test for publication bias
+meta.FullData$Total_N_Inverse <- 1/meta.FullData$Total_N
+model.C.weighted.bias <- lmer(AgeDiff_Criterion ~ 1 + Total_N_Inverse + YA_Criterion.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num.c + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.FullData, weights=1/Total_N)
+summaryCI(model.C.weighted.bias)
+drop1(model.C.weighted.bias, test='Chisq') # likelihood-ratio test
 
 ## TABLES
 
@@ -158,17 +176,17 @@ IVTable
 
 # Plot all d' points
 pdf('Figure1-OA_Dprime_vs_YA_Dprime.pdf')
-plot(meta.Reg.FullData$YA_Discrimination, meta.Reg.FullData$OA_Discrimination, xlab="Young adult d'", ylab="Older adult d'", xlim=c(0,5), ylim=c(0,5), bty='l')
+plot(meta.FullData$YA_Discrimination, meta.FullData$OA_Discrimination, xlab="Young adult d'", ylab="Older adult d'", xlim=c(0,5), ylim=c(0,5), bty='l')
 abline(a=0, b=1)
 dslope = summary(model.Dprime)$coeff['YA_Discrimination.c','Estimate']
-dxcenter = mean(meta.Reg.FullData$YA_Discrimination)
+dxcenter = mean(meta.FullData$YA_Discrimination)
 dintercept = summary(model.Dprime)$coeff['(Intercept)','Estimate']
 drealintercept = (dslope * (-1 * dxcenter)) + dintercept
 dev.off()
 
 # Plot all c points
 pdf('Figure2-OA_c_vs_YA_c.pdf')
-plot(meta.Reg.FullData$YA_Criterion, meta.Reg.FullData$OA_Criterion, xlab="Young adult c", ylab="Older adult c", xlim=c(-1.5,1.5), ylim=c(-1.5,1.5), bty='l')
+plot(meta.FullData$YA_Criterion, meta.FullData$OA_Criterion, xlab="Young adult c", ylab="Older adult c", xlim=c(-1.5,1.5), ylim=c(-1.5,1.5), bty='l')
 abline(h=0, lty=2)
 abline(v=0, lty=2)
 abline(a=0, b=1)
@@ -180,22 +198,18 @@ dev.off()
 
 # Discrimination model
 # Trim based on residuals
-meta.FullData$predicted <- predict(model.Dprime)
-meta.Reg.D.Trimmed <- meta.FullData[abs(scale(resid(model.Dprime))) <= 3, ]
+meta.Reg.D.Trimmed <- meta.FullData[abs(scale(resid(model.Dprime.weighted))) <= 3, ]
 1-(nrow(meta.Reg.D.Trimmed)/nrow(meta.FullData))
 # and refit model:
-model.Dprime.Trimmed <- lmer(AgeDiff_Discrimination ~ 1 + YA_Discrimination.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num.c + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.Reg.D.Trimmed)
+model.Dprime.Trimmed <- lmer(AgeDiff_Discrimination ~ 1 + YA_Discrimination.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num.c + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.Reg.D.Trimmed, weights=1/Total_N)
 summaryCI(model.Dprime.Trimmed)
 drop1(model.Dprime.Trimmed, test='Chisq')
 
 # Criterion model
 # Trim based on residuals
-meta.Reg.C.Trimmed <- meta.FullData[abs(scale(resid(model.C))) <= 3, ]
+meta.Reg.C.Trimmed <- meta.FullData[abs(scale(resid(model.C.weighted))) <= 3, ]
 1-(nrow(meta.Reg.C.Trimmed)/nrow(meta.FullData))
 # and refit model:
-model.C.Trimmed <- lmer(AgeDiff_Criterion ~ 1 + YA_Criterion.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num.c + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.Reg.C.Trimmed)
+model.C.Trimmed <- lmer(AgeDiff_Criterion ~ 1 + YA_Criterion.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num.c + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.Reg.C.Trimmed, weights=1/Total_N)
 summaryCI(model.C.Trimmed)
 drop1(model.C.Trimmed, test='Chisq')
-
-
-## TABLES
