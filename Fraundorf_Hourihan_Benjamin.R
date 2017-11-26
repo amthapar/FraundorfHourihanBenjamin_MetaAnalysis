@@ -81,6 +81,16 @@ model.Dprime.weighted <- lmer(AgeDiff_Discrimination ~ 1 + YA_Discrimination.c +
 summaryCI(model.Dprime.weighted)
 drop1(model.Dprime.weighted, test='Chisq') # likelihood-ratio test
 
+<<<<<<< HEAD
+# Test for heterogeneity
+model.Dprime.w.PaperIDOnly <- lmer(AgeDiff_Discrimination ~ 1 + (1|PaperID), data=meta.FullData, weights=1/Total_N)
+summary(model.Dprime.w.PaperIDOnly)
+model.Dprime.w.InterceptOnly <- lm(AgeDiff_Discrimination ~ 1, data=meta.FullData, weights=1/Total_N)
+summary(model.Dprime.w.InterceptOnly)
+anova(model.Dprime.w.PaperIDOnly, model.Dprime.w.InterceptOnly)
+
+=======
+>>>>>>> 903ab6e22898e91ae5a301bd779a72836a31f26f
 # Peters' test for publication bias
 meta.FullData$Total_N_Inverse <- 1/meta.FullData$Total_N
 model.Dprime.weighted.bias <- lmer(AgeDiff_Discrimination ~ 1 + Total_N_Inverse + YA_Discrimination.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.FullData, weights=1/Total_N)
@@ -94,11 +104,26 @@ model.C.weighted <- lmer(AgeDiff_Criterion ~ 1 + YA_Criterion.c + OA_Age.c + Fac
 summaryCI(model.C.weighted)
 drop1(model.C.weighted, test='Chisq') # likelihood-ratio test
 
+<<<<<<< HEAD
+# Test for heterogeneity
+model.C.w.InterceptOnly <- lm(AgeDiff_Criterion ~ 1, data=meta.FullData, weights=1/Total_N)
+summary(model.C.w.InterceptOnly)
+model.C.w.StudyIDOnly <- lmer(AgeDiff_Criterion ~ 1 + (1|StudyID), data=meta.FullData, weights=1/Total_N)
+summary(model.Dprime.w.StudyIDOnly)
+anova(model.C.w.StudyIDOnly, model.C.w.InterceptOnly)
+
 # Test for criteron differences even controlling for d'
 model.C.weighted.d <- lmer(AgeDiff_Criterion ~ 1 + AgeDiff_Discrimination + YA_Criterion.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num.c + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.FullData, weights=1/Total_N)
 summaryCI(model.C.weighted.d)
 drop1(model.C.weighted.d, test='Chisq') # likelihood-ratio test
 
+=======
+# Test for criteron differences even controlling for d'
+model.C.weighted.d <- lmer(AgeDiff_Criterion ~ 1 + AgeDiff_Discrimination + YA_Criterion.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num.c + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.FullData, weights=1/Total_N)
+summaryCI(model.C.weighted.d)
+drop1(model.C.weighted.d, test='Chisq') # likelihood-ratio test
+
+>>>>>>> 903ab6e22898e91ae5a301bd779a72836a31f26f
 # Peters' test for publication bias
 meta.FullData$Total_N_Inverse <- 1/meta.FullData$Total_N
 model.C.weighted.bias <- lmer(AgeDiff_Criterion ~ 1 + Total_N_Inverse + YA_Criterion.c + OA_Age.c + Faces + Pictures + Text + PositiveValence + NegativeValence + AuditoryOnly + Audiovisual + EncodingType + ShallowStudy + DeepStudy + GenerationStudy + DividedStudy + Production + NumTBRItems.c + MultipleStudy + SelfPaced + IntentionalSelfPaced + StudyTimePer.Num.c + InterveningCuedRecall + InterveningFreeRecall + RetentionInterval + ContinuousRecog + ContinuousRI + ConjunctionLures + SemanticLures + FeaturalLures + ComponentLures + TestListLength.Num.c + propLures.c + (1|PaperID) + (1|StudyID) + (1|SubjGroup), data=meta.FullData, weights=1/Total_N)
@@ -106,6 +131,10 @@ summaryCI(model.C.weighted.bias)
 drop1(model.C.weighted.bias, test='Chisq') # likelihood-ratio test
 
 ## TABLES
+
+# total sample size
+sum(tapply(meta.FullData$YA_N, meta.FullData$SubjGroup, mean))
+sum(tapply(meta.FullData$OA_N, meta.FullData$SubjGroup, mean))
 
 # dependent measures
 DVTable <- cbind(c(mean(meta.FullData$YA_Discrimination), mean(meta.FullData$OA_Discrimination), mean(meta.FullData$AgeDiff_Discrimination), mean(meta.FullData$YA_Criterion), mean(meta.FullData$OA_Criterion), mean(meta.FullData$AgeDiff_Criterion)), 
@@ -175,17 +204,30 @@ IVTable
 ## FIGURES
 
 # Plot all d' points
+<<<<<<< HEAD
+pdf('Figure2-OA_Dprime_vs_YA_Dprime.pdf')
+plot(meta.FullData$YA_Discrimination, meta.FullData$OA_Discrimination, xlab="Young adult d'", ylab="Older adult d'", xlim=c(0,5), ylim=c(0,5), bty='l')
+abline(a=0, b=1)
+dslope = summary(model.Dprime.weighted)$coeff['YA_Discrimination.c','Estimate']
+dxcenter = mean(meta.FullData$YA_Discrimination)
+dintercept = summary(model.Dprime.weighted)$coeff['(Intercept)','Estimate']
+=======
 pdf('Figure1-OA_Dprime_vs_YA_Dprime.pdf')
 plot(meta.FullData$YA_Discrimination, meta.FullData$OA_Discrimination, xlab="Young adult d'", ylab="Older adult d'", xlim=c(0,5), ylim=c(0,5), bty='l')
 abline(a=0, b=1)
 dslope = summary(model.Dprime)$coeff['YA_Discrimination.c','Estimate']
 dxcenter = mean(meta.FullData$YA_Discrimination)
 dintercept = summary(model.Dprime)$coeff['(Intercept)','Estimate']
+>>>>>>> 903ab6e22898e91ae5a301bd779a72836a31f26f
 drealintercept = (dslope * (-1 * dxcenter)) + dintercept
 dev.off()
 
 # Plot all c points
+<<<<<<< HEAD
+pdf('Figure3-OA_c_vs_YA_c.pdf')
+=======
 pdf('Figure2-OA_c_vs_YA_c.pdf')
+>>>>>>> 903ab6e22898e91ae5a301bd779a72836a31f26f
 plot(meta.FullData$YA_Criterion, meta.FullData$OA_Criterion, xlab="Young adult c", ylab="Older adult c", xlim=c(-1.5,1.5), ylim=c(-1.5,1.5), bty='l')
 abline(h=0, lty=2)
 abline(v=0, lty=2)
