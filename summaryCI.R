@@ -18,7 +18,7 @@
 #' @export
 #' @importFrom stats family qnorm
 
-summaryCI <- function(model, confidence=.95) {
+summaryCI <- function(model, confidence=.95, digits=3) {
 
 	# First, check that this was a GAUSSIAN model:
 	if (family(model)$family != "gaussian") {
@@ -44,11 +44,11 @@ summaryCI <- function(model, confidence=.95) {
 	ci.upper <- coefs[,1] + (quantile * coefs[,2])
 
 	# Add these to the coefficients table:
-	model.summary$coefficients <- cbind('Estimate'=coefs[,'Estimate'],
-	                                    'Std. Error'=coefs[,'Std. Error'],
-	                                    't value'=coefs[,'t value'],
-	                                    'Lower CI'=ci.lower,
-	                                    'Upper CI'=ci.upper)
+	model.summary$coefficients <- cbind('Estimate'=round(coefs[,'Estimate'], digits),
+	                                    'Std. Error'=round(coefs[,'Std. Error'], digits),
+	                                    't value'=round(coefs[,'t value'], digits),
+	                                    'Lower CI'=round(ci.lower, digits),
+	                                    'Upper CI'=round(ci.upper, digits))
 
 	# Display:
 	model.summary
